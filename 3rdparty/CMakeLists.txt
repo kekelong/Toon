@@ -2,11 +2,6 @@ set(third_party_folder "ThirdParty")
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
-# 设置第三方库的输出目录为根路径下的 bin 目录
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
-
 if(NOT TARGET imgui)
     include(imgui.cmake)
     set_target_properties(imgui PROPERTIES FOLDER ${third_party_folder}/imgui)
@@ -34,7 +29,7 @@ if(NOT TARGET stb)
     set_target_properties(stb PROPERTIES FOLDER ${third_party_folder}/stb)
 endif()
 
-#if(NOT TARGET json11)
-    #add_subdirectory(json11)
-   # set_target_properties(json11 PROPERTIES FOLDER ${third_party_folder}/json11)
-#endif()
+if(NOT TARGET rapidjson)
+    add_subdirectory(rapidjson)
+    set_target_properties(RapidJSON PROPERTIES FOLDER ${third_party_folder}/rapidjson)
+endif()

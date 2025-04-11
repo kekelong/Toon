@@ -15,9 +15,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 string(COMPARE EQUAL "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}" GLFW_STANDALONE)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" ${GLFW_STANDALONE})
-option(GLFW_BUILD_TESTS "Build the GLFW test programs" ${GLFW_STANDALONE})
-option(GLFW_BUILD_DOCS "Build the GLFW documentation" ON)
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)  # 已删除
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)  # 已删除
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)  # 已删除
 option(GLFW_INSTALL "Generate installation target" ON)
 
 include(GNUInstallDirs)
@@ -77,7 +77,6 @@ endif()
 
 #--------------------------------------------------------------------
 # Apply Microsoft C runtime library option
-# This is here because it also applies to tests and examples
 #--------------------------------------------------------------------
 if (MSVC AND NOT USE_MSVC_RUNTIME_LIBRARY_DLL)
     if (CMAKE_VERSION VERSION_LESS 3.15)
@@ -121,21 +120,8 @@ write_basic_package_version_file(src/glfw3ConfigVersion.cmake
 #--------------------------------------------------------------------
 add_subdirectory(src)
 
-if (GLFW_BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
-
-if (GLFW_BUILD_TESTS)
-    add_subdirectory(tests)
-endif()
-
-if (GLFW_BUILD_DOCS)
-    add_subdirectory(docs)
-endif()
-
 #--------------------------------------------------------------------
 # Install files other than the library
-# The library is installed by src/CMakeLists.txt
 #--------------------------------------------------------------------
 if (GLFW_INSTALL)
     install(DIRECTORY include/GLFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -151,7 +137,6 @@ if (GLFW_INSTALL)
     install(FILES "${GLFW_BINARY_DIR}/src/glfw3.pc"
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
-    # Only generate this target if no higher-level project already has
     if (NOT TARGET uninstall)
         configure_file(CMake/cmake_uninstall.cmake.in
                        cmake_uninstall.cmake IMMEDIATE @ONLY)
@@ -162,4 +147,3 @@ if (GLFW_INSTALL)
         set_target_properties(uninstall PROPERTIES FOLDER "GLFW3")
     endif()
 endif()
-

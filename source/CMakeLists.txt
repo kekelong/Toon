@@ -3,7 +3,6 @@ set(TARGET_NAME ToonEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
 # Note: globbing sources is considered bad practice as CMake's generators may not detect new files
 # automatically. Keep that in mind when changing files, or explicitly mention them here.
 file(GLOB_RECURSE HEADER_FILES "*.h")
@@ -25,7 +24,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog)
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC imgui)
 target_link_libraries(${TARGET_NAME} PUBLIC stb)
-#target_link_libraries(${TARGET_NAME} PUBLIC json11)
+target_include_directories( ${TARGET_NAME} PUBLIC ${THIRD_PARTY_DIR}/rapidjson/include)
 
 target_include_directories(
   ${TARGET_NAME} 
