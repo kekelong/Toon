@@ -28,8 +28,3 @@ if(NOT TARGET stb)
     include(stb.cmake)
     set_target_properties(stb PROPERTIES FOLDER ${third_party_folder}/stb)
 endif()
-
-if(NOT TARGET rapidjson)
-    add_subdirectory(rapidjson)
-    set_target_properties(RapidJSON PROPERTIES FOLDER ${third_party_folder}/rapidjson)
-endif()

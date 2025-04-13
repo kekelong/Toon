@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "core/serializer/json.h"
+#include "runtime/core/meta/serializer/serializer.h"
 #include <memory>
 
 namespace Toon

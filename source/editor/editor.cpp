@@ -1,8 +1,8 @@
-﻿#include "engine.h"
-#include "core/base/macro.h"
-#include "editor.h"
+﻿#include "editor.h"
 #include "editor_ui.h"
-#include "function/global/global_context.h"
+#include "runtime/engine.h"
+#include "runtime/core/base/macro.h"
+#include "runtime/function/global/global_context.h"
 namespace Toon
 {
 	ToonEditor::ToonEditor()

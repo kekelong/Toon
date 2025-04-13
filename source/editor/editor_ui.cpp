@@ -1,8 +1,8 @@
-#include "engine.h"
 #include "editor_ui.h"
-#include "function/render/render_system.h"
-#include "function/render/window_system.h"
-#include "core/base/macro.h"
+#include "runtime/engine.h"
+#include "runtime/function/render/render_system.h"
+#include "runtime/function/render/window_system.h"
+#include "runtime/core/base/macro.h"
 #include <imgui.h>
 #include <imgui_internal.h>
 namespace Toon
@@ -73,7 +73,7 @@ namespace Toon
 		setUIColorStyle();
 
 		// initialize imgui opengl
-		init_info.render_system->initializeImgui(this);	
+		//init_info.render_system->initializeImgui(this);	
 	}
 
 	void EditorUI::setUIColorStyle()

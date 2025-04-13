@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF)
 
+
 # ---- Include guards ----
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(
@@ -20,14 +21,24 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 set(TOON_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(CMAKE_INSTALL_PREFIX "${TOON_ROOT_DIR}/bin")
+set(BINARY_ROOT_DIR "${CMAKE_INSTALL_PREFIX}")
 set(SOURCE_ROOT_DIR "${TOON_ROOT_DIR}/source")
 set(THIRD_PARTY_DIR "${TOON_ROOT_DIR}/3rdparty")
-set(ENGINE_ASSET_DIR "asset")
+set(TOON_ASSET_DIR "asset")
+set(TOON_CONFIG_DIR "configs")
 
-# 设置可执行文件和库文件的输出目录为根路径下的 bin 目录
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${TOON_ROOT_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${TOON_ROOT_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TOON_ROOT_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TOON_ROOT_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${TOON_ROOT_DIR}/bin)
 
 add_subdirectory(3rdparty)
-add_subdirectory(source)
+
+add_subdirectory(source/runtime)
+add_subdirectory(source/editor)
+add_subdirectory(source/meta_parser)
+
+
+include(source/precompile/precompile.cmake)
+add_dependencies(ToonPreCompile ToonParser)
+add_dependencies(ToonRuntime ToonPreCompile)
