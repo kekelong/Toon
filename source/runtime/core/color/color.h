@@ -2,6 +2,7 @@
 #include "runtime/core/meta/reflection/reflection.h"
 
 #include "runtime/core/math/vector4.h"
+#include "runtime/core/math/vector3.h"
 
 namespace Toon
 {
@@ -17,5 +18,6 @@ namespace Toon
         float a;
 
         Vector4 toVector4() const { return Vector4(r, g, b, a); }
+        Vector3 toVector3() const { return Vector3(r, g, b); }
     };
 }

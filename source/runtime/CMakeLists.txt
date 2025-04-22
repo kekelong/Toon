@@ -27,13 +27,8 @@ target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog)
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC imgui)
 target_link_libraries(${TARGET_NAME} PUBLIC stb)
+target_link_libraries(${TARGET_NAME} PUBLIC tinyobjloader)
 target_link_libraries(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:json11>)
-
-target_include_directories(
-  ${TARGET_NAME} 
-  PUBLIC $<BUILD_INTERFACE:${TOON_ROOT_DIR}/source>
-  $<INSTALL_INTERFACE:include/${TARGET_NAME}-${PROJECT_VERSION}>
-)
 
 target_include_directories(
   ${TARGET_NAME} 
@@ -42,8 +37,15 @@ target_include_directories(
 
 target_include_directories(
   ${TARGET_NAME} 
-  PUBLIC $<BUILD_INTERFACE:${TOON_ROOT_DIR}/source/runtime>
+  PUBLIC $<BUILD_INTERFACE:${SOURCE_ROOT_DIR}/runtime>
   $<INSTALL_INTERFACE:include/${TARGET_NAME}-${PROJECT_VERSION}>
 )
+
+target_include_directories(
+  ${TARGET_NAME} 
+  PUBLIC $<BUILD_INTERFACE:${SOURCE_ROOT_DIR}>
+  $<INSTALL_INTERFACE:include/${TARGET_NAME}-${PROJECT_VERSION}>
+)
+
 
 set(TOON_RUNTIME_HEADS "${HEADER_FILES}" PARENT_SCOPE)

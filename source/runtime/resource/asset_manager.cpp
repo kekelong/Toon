@@ -1,9 +1,10 @@
-#include "runtime/core/base/macro.h"
 #include "runtime/resource/asset_manager.h"
-#include "runtime/resource/config_manager.h"
-#include "runtime/function/global/global_context.h"
-#include <filesystem>
 
+#include "runtime/resource/config_manager.h"
+
+#include "runtime/function/global/global_context.h"
+
+#include <filesystem>
 namespace Toon
 {
     std::filesystem::path AssetManager::getFullPath(const std::string& relative_path) const

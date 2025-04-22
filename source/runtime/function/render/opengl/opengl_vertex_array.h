@@ -1,29 +1,27 @@
 #pragma once
 #include <memory>
-#include "runtime/function/render/opengl/opengl_buffer.h"
+#include "runtime/function/render/opengl/interface/rhi_buffer.h"
 
 
 namespace Toon {
 
-	class OpenGLVertexArray
+	class OpenGlVertexArray : public VertexArray
 	{
 	public:
-		OpenGLVertexArray();
-		~OpenGLVertexArray();
+		OpenGlVertexArray();
+		~OpenGlVertexArray();
+		void Bind()const override;
+		void UnBind()const override;
+		void AddBuffer(std::shared_ptr<BufferLayout>& layout, std::shared_ptr<VertexBuffer>& vbo) override;
+		void SetIndexBuffer(std::shared_ptr<IndexBuffer> IndexBuffer)override;
 
-		void Bind() const;
-		void Unbind() const;
-
-		void AddVertexBuffer(const std::shared_ptr<OpenGLVertexBuffer>& vertexBuffer) ;
-		void SetIndexBuffer(const std::shared_ptr<OpenGLIndexBuffer>& indexBuffer) ;
-
-		const std::vector<std::shared_ptr<OpenGLVertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
-		const std::shared_ptr<OpenGLIndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
+		const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
+		const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() override { return m_VertexBuffer; }
+		unsigned int GetVertexArrayID() override { return m_Renderer; }
 	private:
-		uint32_t m_RendererID;
-		uint32_t m_VertexBufferIndex = 0;
-		std::vector<std::shared_ptr<OpenGLVertexBuffer>> m_VertexBuffers;
-		std::shared_ptr<OpenGLIndexBuffer> m_IndexBuffer;
+		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffer;
+		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+		unsigned int m_Renderer;
 	};
 
 }

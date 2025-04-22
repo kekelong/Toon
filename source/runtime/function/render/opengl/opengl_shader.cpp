@@ -7,7 +7,8 @@
 
 namespace Toon
 {
-	namespace Utils {
+	namespace Utils 
+	{
 
 		static GLenum ShaderTypeFromString(const std::string& type)
 		{
@@ -212,6 +213,11 @@ namespace Toon
 		UploadUniformFloat4(name, value);
 	}
 
+	void OpenGLShader::SetMat3(const std::string& name, const Matrix3x3& value)
+	{
+		UploadUniformMat3(name, value);
+	}
+
 	void OpenGLShader::SetMat4(const std::string& name, const Matrix4x4& value)
 	{
 		UploadUniformMat4(name, value);
@@ -263,54 +269,5 @@ namespace Toon
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_TRUE, matrix.data());
-	}
-
-
-
-	std::shared_ptr<OpenGLShader> ShaderLibrary::Create(const std::string& filepath)
-	{
-		return std::make_shared<OpenGLShader>(filepath);
-	}
-
-	std::shared_ptr<OpenGLShader> ShaderLibrary::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
-	{
-		return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
-	}
-
-	void ShaderLibrary::Add(const std::string& name, const std::shared_ptr<OpenGLShader>& shader)
-	{
-		CORE_ASSERT(!Exists(name), "Shader already exists!");
-		m_Shaders[name] = shader;
-	}
-
-	void ShaderLibrary::Add(const std::shared_ptr<OpenGLShader>& shader)
-	{
-		auto& name = shader->GetName();
-		Add(name, shader);
-	}
-
-	std::shared_ptr<OpenGLShader> ShaderLibrary::Load(const std::string& filepath)
-	{
-		auto shader = Create(filepath);
-		Add(shader);
-		return shader;
-	}
-
-	std::shared_ptr<OpenGLShader> ShaderLibrary::Load(const std::string& name, const std::string& filepath)
-	{
-		auto shader = Create(filepath);
-		Add(name, shader);
-		return shader;
-	}
-
-	std::shared_ptr<OpenGLShader> ShaderLibrary::Get(const std::string& name)
-	{
-		CORE_ASSERT(Exists(name), "Shader not found!");
-		return m_Shaders[name];
-	}
-
-	bool ShaderLibrary::Exists(const std::string& name) const
-	{
-		return m_Shaders.find(name) != m_Shaders.end();
-	}
+	}	
 }

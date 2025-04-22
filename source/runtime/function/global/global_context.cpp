@@ -4,10 +4,12 @@
 #include "runtime/resource/config_manager.h"
 #include "runtime/resource/asset_manager.h"
 #include "runtime/function/render/window_system.h"
+#include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/input/input_system.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
+#include "runtime/function/render/render_debug_config.h"
 namespace Toon
 {
 	RuntimeGlobalContext g_runtime_global_context;
@@ -18,6 +20,9 @@ namespace Toon
 		m_config_manager->initialize(config_file_path);
 
 		m_asset_manager = std::make_shared<AssetManager>();
+
+		m_world_manager = std::make_shared<WorldManager>();
+		m_world_manager->initialize();
 
 		m_window_system = std::make_shared<WindowSystem>();
 		WindowCreateInfo window_create_info;
@@ -33,6 +38,8 @@ namespace Toon
 
 		m_input_system = std::make_shared<InputSystem>();
 		m_input_system->initialize();
+
+		m_render_debug_config = std::make_shared<RenderDebugConfig>();
 	}
 
 	void RuntimeGlobalContext::shutdownSystems()
@@ -41,6 +48,7 @@ namespace Toon
 		m_window_system.reset();
         m_logger_system.reset();
 		m_debugdraw_manager.reset();
+		m_render_debug_config.reset();
 
 	}
 	void RuntimeGlobalContext::initLogSystem()

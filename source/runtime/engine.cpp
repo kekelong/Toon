@@ -3,19 +3,22 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
-
+#include "runtime/function/input/input_system.h"
+#include "runtime/core/meta/reflection/reflection_register.h"
+#include "runtime/function/framework/world/world_manager.h"
 namespace Toon
 {
 	void ToonEngine::startEngine(const std::string& config_file_path)
 	{
-		LOG_INFO("engine start");
+		Reflection::TypeMetaRegister::metaRegister();
 		g_runtime_global_context.startSystems(config_file_path);
+		LOG_INFO("engine start");
 	}
 
 	void ToonEngine::shutdownEngine()
 	{
 		LOG_INFO("engine shutdown");
-		g_runtime_global_context.shutdownSystems();
+		g_runtime_global_context.shutdownSystems();	
 	}
 
 	void ToonEngine::initialize() 
@@ -67,7 +70,8 @@ namespace Toon
 
 	void ToonEngine::logicalTick(float delta_time)
 	{
-		
+		g_runtime_global_context.m_world_manager->tick(delta_time);
+		g_runtime_global_context.m_input_system->tick();
 	}
 
 	bool ToonEngine::rendererTick(float delta_time)

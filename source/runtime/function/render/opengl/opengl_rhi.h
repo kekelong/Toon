@@ -2,11 +2,12 @@
 #include "runtime/core/base/error.h"
 #include "runtime/core/color/color.h"
 #include "runtime/core/math/math_headers.h"
+#include "runtime/function/render/opengl/interface/rhi.h"
 
 namespace Toon
 {
 	class WindowSystem;
-	class OpenGLVertexArray;
+	class VertexArray;
 	
 
 	struct RHIInitInfo
@@ -15,21 +16,21 @@ namespace Toon
 	};
 
 
-	class OpenGLRHI
+	class OpenGLRHI : public RHI
 	{
 	public:
 		OpenGLRHI();
-		~OpenGLRHI();
-		void Initialize(RHIInitInfo info);
-		void ClearColor(const Color&);
-		void Clear();
-		void DrawIndex(OpenGLVertexArray& vertexarray);
-		void DrawArrays(OpenGLVertexArray& vertexarray, size_t count, int first = 0) ;
-		void DrawArrays(OpenGLVertexArray& vertexarray, size_t count, unsigned int renderingMode, int first) ;
-		void DrawInstancedArrays(OpenGLVertexArray& vertexarray, size_t count, size_t instance_count, int first = 0) ;
-		void DrawArraysIndirect(OpenGLVertexArray& vertexarray, uint32_t& indirectBufferID) ;
-		void DrawLine(OpenGLVertexArray& vertexarray, uint32_t count);
-		void SetViewPort(unsigned int, unsigned int) ;
-		Vector2 GetViewportSize() ;
+		virtual ~OpenGLRHI();
+		virtual void Initialize(RHIInitInfo info) override;
+		virtual void ClearColor(const Color&) override;
+		virtual void Clear() override;
+		virtual void DrawIndex(VertexArray& vertexarray) override;
+		virtual void DrawArrays(VertexArray& vertexarray, size_t count, int first = 0)  override;
+		virtual void DrawArrays(VertexArray& vertexarray, size_t count, unsigned int renderingMode, int first)  override;
+		virtual void DrawInstancedArrays(VertexArray& vertexarray, size_t count, size_t instance_count, int first = 0) override;
+		virtual void DrawArraysIndirect(VertexArray& vertexarray, uint32_t& indirectBufferID) override;
+		virtual void DrawLine(VertexArray& vertexarray, uint32_t count) override;
+		virtual void SetViewPort(unsigned int, unsigned int)  override;
+		virtual Vector2 GetViewportSize() override;
 	};
 }

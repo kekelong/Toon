@@ -39,6 +39,9 @@ add_subdirectory(source/editor)
 add_subdirectory(source/meta_parser)
 
 
+set(CODEGEN_TARGET "ToonPreCompile")
 include(source/precompile/precompile.cmake)
-add_dependencies(ToonPreCompile ToonParser)
-add_dependencies(ToonRuntime ToonPreCompile)
+set_target_properties("${CODEGEN_TARGET}" PROPERTIES FOLDER "Engine" )
+
+add_dependencies(ToonRuntime "${CODEGEN_TARGET}")
+add_dependencies("${CODEGEN_TARGET}" "ToonParser")

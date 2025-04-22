@@ -2,69 +2,91 @@
 
 namespace Toon
 {
-	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
+	////////////////////////////////////////////////////////
+	/// Vertex Buffer //////////////////////////////////////
+	//////////////////////////////////////////////////////
+
+
+	OpenGlVertexBuffer::OpenGlVertexBuffer(float* data, size_t size)
 	{
-		GL_CALL(glCreateBuffers(1, &m_RendererID));
-		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
-		GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW));
+		glGenBuffers(1, &m_RendererID);//set up vertex buffer
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 	}
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
-	{
-		GL_CALL(glCreateBuffers(1, &m_RendererID));
-		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
-		GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW));
-	}
-
-	OpenGLVertexBuffer::~OpenGLVertexBuffer()
-	{
-		GL_CALL(glDeleteBuffers(1, &m_RendererID));
-	}
-
-	void OpenGLVertexBuffer::Bind() const
-	{
-		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
-	}
-
-	void OpenGLVertexBuffer::Unbind() const
-	{
-		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	}
-
-	void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)
-	{
-		GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
-		GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, size, data));
-	}
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	// IndexBuffer //////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-
-	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
-		: m_Count(count)
+	OpenGlVertexBuffer::OpenGlVertexBuffer(size_t size, BufferStorage_Type Storage_Type)
 	{
 		glCreateBuffers(1, &m_RendererID);
-
-		// GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
-		// Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state. 
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		auto flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+		switch (Storage_Type)
+		{
+		case BufferStorage_Type::MUTABLE:
+			glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+			break;
+		case BufferStorage_Type::IMMUTABLE:
+			glBufferStorage(GL_ARRAY_BUFFER, size, 0, flags);
+			break;
+		default:
+			LOG_ERROR("Select correct storage type");
+			glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+			break;
+		}
 	}
 
-	OpenGLIndexBuffer::~OpenGLIndexBuffer()
+	OpenGlVertexBuffer::~OpenGlVertexBuffer()
 	{
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
-	void OpenGLIndexBuffer::Bind() const
+	void OpenGlVertexBuffer::Bind() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+	}
+
+	void OpenGlVertexBuffer::UnBind() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void OpenGlVertexBuffer::SetData(size_t size, const void* data)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+	}
+
+	void* OpenGlVertexBuffer::MapBuffer(size_t size)
+	{
+		auto flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+		return glMapBufferRange(GL_ARRAY_BUFFER, 0, size, flags);
+	}
+
+	////////////////////////////////////////////////////////
+	/// Index Buffer //////////////////////////////////////
+	//////////////////////////////////////////////////////
+
+
+	OpenGlIndexBuffer::OpenGlIndexBuffer(uint32_t* data, size_t size)
+	{
+		m_Elements = size / sizeof(uint32_t);
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	}
+	OpenGlIndexBuffer::~OpenGlIndexBuffer()
+	{
+		glDeleteBuffers(1, &m_RendererID);
+	}
+	void OpenGlIndexBuffer::Bind() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 	}
-
-	void OpenGLIndexBuffer::Unbind() const
+	void OpenGlIndexBuffer::UnBind() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+	size_t OpenGlIndexBuffer::GetCount()
+	{
+		return m_Elements;
 	}
 }

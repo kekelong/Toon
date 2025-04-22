@@ -1,5 +1,7 @@
 #pragma once
 
+#include "runtime/core/math/math_headers.h"
+#include "runtime/function/render/render_camera.h"
 namespace Toon
 {
     enum class GameCommand : unsigned int
@@ -32,8 +34,8 @@ namespace Toon
         int m_cursor_delta_x {0};
         int m_cursor_delta_y {0};
 
-       // Radian m_cursor_delta_yaw {0};
-       // Radian m_cursor_delta_pitch {0};
+        Radian m_cursor_delta_yaw {0};
+        Radian m_cursor_delta_pitch {0};
 
         void         resetGameCommand() { m_game_command = 0; }
         unsigned int getGameCommand() const { return m_game_command; }

@@ -2,6 +2,7 @@
 #include "runtime/function/input/input_system.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/window_system.h"
+#include "runtime/function/render/render_system.h"
 
 #include <GLFW/glfw3.h>
 
@@ -58,25 +59,18 @@ namespace Toon
 				// close();
 				break;
 			case GLFW_KEY_R:
-				LOG_INFO("R................");
 				break;
 			case GLFW_KEY_W:
-				LOG_INFO("W................");
 				break;
 			case GLFW_KEY_S:
-				LOG_INFO("S................");
 				break;
 			case GLFW_KEY_A:
-				LOG_INFO("A................");
 				break;
 			case GLFW_KEY_D:
-				LOG_INFO("D...............");
 				break;
 			case GLFW_KEY_LEFT_CONTROL:
-				LOG_INFO("CONTROL................");
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
-				LOG_INFO("SHIFT................");
 				break;
 			default:
 				break;
@@ -98,7 +92,7 @@ namespace Toon
 
     void InputSystem::calculateCursorDeltaAngles()
     {
-		/* std::array<int, 2> window_size = g_runtime_global_context.m_window_system->getWindowSize();
+		 std::array<int, 2> window_size = g_runtime_global_context.m_window_system->getWindowSize();
 
 		 if (window_size[0] < 1 || window_size[1] < 1)
 		 {
@@ -112,12 +106,11 @@ namespace Toon
 		 Radian cursor_delta_y(Math::degreesToRadians(m_cursor_delta_y));
 
 		 m_cursor_delta_yaw   = (cursor_delta_x / (float)window_size[0]) * fov.x;
-		 m_cursor_delta_pitch = -(cursor_delta_y / (float)window_size[1]) * fov.y;*/
+		 m_cursor_delta_pitch = -(cursor_delta_y / (float)window_size[1]) * fov.y;
     }
 
     void InputSystem::initialize()
-    {
-		LOG_INFO("InputSystem initialize");
+    {		
         std::shared_ptr<WindowSystem> window_system = g_runtime_global_context.m_window_system;
         ASSERT(window_system);
 

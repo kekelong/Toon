@@ -6,224 +6,119 @@
 #include <fstream>
 
 #define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb_image.h>
-#include <stb_image_resize.h>
 
 
 namespace Toon
 {
-	OpenGlTexture2D::OpenGlTexture2D(const std::string& path, bool bUse16BitTexture)
-		:m_Height(0), m_Width(0)
+	namespace Utils 
 	{
-		if (bUse16BitTexture)
-			Create16BitTexture(path);
-		else
-			Create8BitsTexture(path);
-	}
 
-	OpenGlTexture2D::OpenGlTexture2D(const uint32_t Width, const uint32_t Height, uint32_t data)
-		:m_Height(Height), m_Width(Width)
-	{
-		GLenum InternalFormat = GL_RGBA8, Format = GL_RGBA;
-
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_Renderid);
-		glTextureStorage2D(m_Renderid, 1, InternalFormat, m_Width, m_Height);
-
-		glTextureParameteri(m_Renderid, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_Renderid, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glTextureSubImage2D(m_Renderid, 0, 0, 0, m_Width, m_Height, Format, GL_UNSIGNED_BYTE, &data);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	void OpenGlTexture2D::Create16BitTexture(const std::string& path)
-	{
-		stbi_set_flip_vertically_on_load(1);
-		pixel_data_16 = stbi_load_16(path.c_str(), &m_Width, &m_Height, &channels, 0);
-
-		GLenum InternalFormat = 0, Format = 0;
-		if (pixel_data_16 == nullptr) {
-			LOG_ERROR("2D Image not found!!");
-			CreateWhiteTexture();
-		}
-		else 
+		static GLenum ImageFormatToGLDataFormat(ImageFormat format)
 		{
+			switch (format)
+			{
+			case ImageFormat::RGB8:  return GL_RGB;
+			case ImageFormat::RGBA8: return GL_RGBA;
+			}
+
+			ASSERT(false);
+			return 0;
+		}
+
+		static GLenum ImageFormatToGLInternalFormat(ImageFormat format)
+		{
+			switch (format)
+			{
+			case ImageFormat::RGB8:  return GL_RGB8;
+			case ImageFormat::RGBA8: return GL_RGBA8;
+			}
+
+			ASSERT(false);
+			return 0;
+		}
+
+	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& specification)
+		: m_Specification(specification), m_Width(m_Specification.Width), m_Height(m_Specification.Height)
+	{
+
+		m_InternalFormat = Utils::ImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormat = Utils::ImageFormatToGLDataFormat(m_Specification.Format);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
+
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
+		: m_Path(path)
+	{
+		int width, height, channels;
+		stbi_set_flip_vertically_on_load(1);
+		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+
+		if (data)
+		{
+			m_Width = width;
+			m_Height = height;
+
+			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
 			{
-				InternalFormat = GL_RGBA16;
-				Format = GL_RGBA;
+				internalFormat = GL_RGBA8;
+				dataFormat = GL_RGBA;
 			}
 			else if (channels == 3)
 			{
-				InternalFormat = GL_RGB16;
-				Format = GL_RGB;
+				internalFormat = GL_RGB8;
+				dataFormat = GL_RGB;
 			}
-			else if (channels == 2)
-			{
-				InternalFormat = GL_RG16;
-				Format = GL_RG;
-			}
-			else if (channels == 1)
-			{
-				InternalFormat = GL_R16;
-				Format = GL_RED;
-			}
-			else
-				LOG_ERROR("Invalid Texture format");
 
-			glCreateTextures(GL_TEXTURE_2D, 1, &m_Renderid);
-			glTextureStorage2D(m_Renderid, 1, InternalFormat, m_Width, m_Height);
+			m_InternalFormat = internalFormat;
+			m_DataFormat = dataFormat;
 
-			glGenerateTextureMipmap(m_Renderid);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_R, GL_REPEAT);
+			CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
-			if (resized_image_16)
-			{
-				glTextureSubImage2D(m_Renderid, 0, 0, 0, m_Width, m_Height, Format, GL_UNSIGNED_SHORT, resized_image_16);
-				stbi_image_free(resized_image_16);
-			}
-			else if (pixel_data_16) {
-				glTextureSubImage2D(m_Renderid, 0, 0, 0, m_Width, m_Height, Format, GL_UNSIGNED_SHORT, pixel_data_16);
-				stbi_image_free(pixel_data_16);
-			}
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+			glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
-	}
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	void OpenGlTexture2D::Create8BitsTexture(const std::string& path)
-	{
-		GLenum InternalFormat = 0, Format = 0;
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		stbi_set_flip_vertically_on_load(1);
-		pixel_data_8 = stbi_load(path.c_str(), &m_Width, &m_Height, &channels, 0);
+			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
-		if (pixel_data_8 == nullptr) {
-			LOG_ERROR("{}{}", path, "2D Image not found!!");
-			CreateWhiteTexture();
-		}
-		else 
-		{
-			if (channels == 4)
-			{
-				InternalFormat = GL_RGBA8;
-				Format = GL_RGBA;
-			}
-			else if (channels == 3)
-			{
-				InternalFormat = GL_RGB8;
-				Format = GL_RGB;
-			}
-			else if (channels == 2)
-			{
-				InternalFormat = GL_RG8;
-				Format = GL_RG;
-			}
-			else if (channels == 1)
-			{
-				InternalFormat = GL_R8;
-				Format = GL_RED;
-			}
-			else
-				LOG_ERROR("Invalid Texture format");
-
-			glCreateTextures(GL_TEXTURE_2D, 1, &m_Renderid);
-			glTextureStorage2D(m_Renderid, 1, InternalFormat, m_Width, m_Height);
-
-			glGenerateTextureMipmap(m_Renderid);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_R, GL_REPEAT);
-
-			if (resized_image_8)
-			{
-				glTextureSubImage2D(m_Renderid, 0, 0, 0, m_Width, m_Height, Format, GL_UNSIGNED_BYTE, resized_image_8);
-				stbi_image_free(resized_image_8);
-			}
-			else if (pixel_data_8) {
-				glTextureSubImage2D(m_Renderid, 0, 0, 0, m_Width, m_Height, Format, GL_UNSIGNED_BYTE, pixel_data_8);
-				stbi_image_free(pixel_data_8);
-			}
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-	}
-
-	OpenGlTexture2D::~OpenGlTexture2D()
-	{
-		glDeleteTextures(1, &m_Renderid);
-	}
-
-	void OpenGlTexture2D::Bind(int slot = 0) const
-	{
-		glBindTextureUnit(slot, m_Renderid);
-	}
-
-	void OpenGlTexture2D::UnBind() const
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	void OpenGlTexture2D::CreateWhiteTexture()
-	{
-		pixel_data_8 = stbi_load("assets/textures/white.jpg", &m_Width, &m_Height, &channels, 0);
-		if (pixel_data_8 == nullptr)
-			LOG_ERROR("Image not found!!");
-		Resize_Image(16, 16);
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_Renderid);
-		glTextureStorage2D(m_Renderid, 1, GL_RGB8, 16, 16);
-
-		glGenerateTextureMipmap(m_Renderid);
-		glTextureParameteri(m_Renderid, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTextureParameteri(m_Renderid, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-		glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_R, GL_REPEAT);
-
-		if (resized_image_8)
-		{
-			glTextureSubImage2D(m_Renderid, 0, 0, 0, 16, 16, GL_RGB, GL_UNSIGNED_BYTE, resized_image_8);
-			stbi_image_free(resized_image_8);
-		}
-		else if (pixel_data_8) {
-			glTextureSubImage2D(m_Renderid, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, pixel_data_8);
-			stbi_image_free(pixel_data_8);
-		}
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	/*
-	* @brief 调整纹理图像的大小 (支持 8 位和 16 位纹理)
-	* @param width 目标图像宽度
-	* @param height 目标图像高度
-	* @param bUse16BitTexture 是否使用 16 位纹理
-	*/
-	void OpenGlTexture2D::Resize_Image(const float& width, const float& height, bool bUse16BitTexture)
-	{
-		if (bUse16BitTexture)
-		{
-			if (m_Height > width && m_Width > height)
-			{
-				resized_image_16 = new unsigned short[width * height * channels];
-				stbir_resize_uint16_generic(pixel_data_16, m_Width, m_Height, 0, resized_image_16, width, height, 0, channels, 0, 0, STBIR_EDGE_REFLECT, STBIR_FILTER_BOX, STBIR_COLORSPACE_LINEAR, 0);
-				m_Height = height;
-				m_Width = width;
-			}
+			stbi_image_free(data);
 		}
 		else
 		{
-			if (m_Height > width && m_Width > height)
-			{
-				resized_image_8 = new unsigned char[width * height * channels];
-				stbir_resize_uint8(pixel_data_8, m_Width, m_Height, 0, resized_image_8, width, height, 0, channels);
-
-				m_Height = height;
-				m_Width = width;
-			}
+			LOG_ERROR("stbi_load is null, path = {}", path.c_str());
 		}
+	}
+
+	OpenGLTexture2D::~OpenGLTexture2D()
+	{
+		glDeleteTextures(1, &m_RendererID);
+	}
+
+	void OpenGLTexture2D::SetData(void* data, uint32_t size)
+	{
+		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+		CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+	}
+
+	void OpenGLTexture2D::Bind(uint32_t slot) const
+	{
+		glBindTextureUnit(slot, m_RendererID);
 	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "runtime/core/meta/json.h"
-
+#include "runtime/core/meta/reflection/reflection_register.h"
 #include <functional>
 #include <string>
 #include <unordered_map>

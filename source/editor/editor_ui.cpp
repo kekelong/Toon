@@ -72,8 +72,8 @@ namespace Toon
 		// set imgui color style
 		setUIColorStyle();
 
-		// initialize imgui opengl
-		//init_info.render_system->initializeImgui(this);	
+		// initialize imgui
+		init_info.render_system->initializeUIRenderBackend(this);
 	}
 
 	void EditorUI::setUIColorStyle()

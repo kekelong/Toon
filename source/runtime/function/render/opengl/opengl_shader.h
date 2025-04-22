@@ -1,27 +1,30 @@
 #pragma once
 #include "runtime/core/base/error.h"
 #include "runtime/core/math/math_headers.h"
+#include "runtime/function/render/opengl/interface/rhi_shader.h"
 #include <unordered_map>
 #include <string>
+
 namespace Toon
 {
-	class OpenGLShader
+	class OpenGLShader : public Shader
 	{
 	public:
 		OpenGLShader(const std::string& filepath);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		virtual ~OpenGLShader();
 
-		void Bind() const;
-		void Unbind() const;
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
 
-		void SetInt(const std::string& name, int value);
-		void SetIntArray(const std::string& name, int* values, uint32_t count);
-		void SetFloat(const std::string& name, float value);
-		void SetFloat2(const std::string& name, const Vector2& value);
-		void SetFloat3(const std::string& name, const Vector3& value);
-		void SetFloat4(const std::string& name, const Vector4& value);
-		void SetMat4(const std::string& name, const Matrix4x4& value);
+		virtual void SetInt(const std::string& name, int value) override;
+		virtual void SetIntArray(const std::string& name, int* values, uint32_t count) override;
+		virtual void SetFloat(const std::string& name, float value) override;
+		virtual void SetFloat2(const std::string& name, const Vector2& value) override;
+		virtual void SetFloat3(const std::string& name, const Vector3& value) override;
+		virtual void SetFloat4(const std::string& name, const Vector4& value) override;
+		virtual void SetMat3(const std::string& name, const Matrix3x3& value) override;
+		virtual void SetMat4(const std::string& name, const Matrix4x4& value) override;
 
 		const std::string& GetName() const { return m_Name; }
 
@@ -47,23 +50,4 @@ namespace Toon
 		std::unordered_map<GLenum, std::string> m_OpenGLSourceCode;
 	};
 
-
-	class ShaderLibrary
-	{
-	public:
-		std::shared_ptr<OpenGLShader> Create(const std::string& filepath);
-		std::shared_ptr<OpenGLShader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
-
-		void Add(const std::string& name, const std::shared_ptr<OpenGLShader>& shader);
-		void Add(const std::shared_ptr<OpenGLShader>& shader);
-		std::shared_ptr<OpenGLShader> Load(const std::string& filepath);
-		std::shared_ptr<OpenGLShader> Load(const std::string& name, const std::string& filepath);
-
-		std::shared_ptr<OpenGLShader> Get(const std::string& name);
-
-		bool Exists(const std::string& name) const;
-
-	private:
-		std::unordered_map<std::string, std::shared_ptr<OpenGLShader>> m_Shaders;
-	};
 }
